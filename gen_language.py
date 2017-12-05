@@ -184,13 +184,13 @@ class Word:#chooses a number of syllables from the language's list and lists the
 
         while len(fullword) <= l:
 
-##            if len(language.syllables) < 10000:
-##                x = Syllable(language)
-##
-##            else:
-            x = choice(language.syllables)
+            if len(language.allsyls) < 10000:
+                x = Syllable(language)
+
+            else:
+                x = choice(language.allsyls)
             
-##            fullword += x.sounds + '.'
+            fullword += x.sounds + '.'
             output.append(x)
 
         self.word = output
