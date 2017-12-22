@@ -4,11 +4,8 @@ from random import *
 class Language:
     parts = ['onset','medial','nucleus','coda']
 
-    def __init__(self, onset, medial, nucleus, coda, orthography, wordlength, clusters = {}, structure = [1,0,1,1], alpha = 0.21, beta = 1.35):#'structure' lists probabilty of occurence of [onset,medial,nucleus,coda]; 'parameters' lists constants for phomene distribution (either exponential or beta)
-##        self.onset = onset
-##        self.medial = medial
-##        self.nucleus = nucleus
-##        self.coda = coda
+    def __init__(self, onset, medial, nucleus, coda, orthography, wordlength, clusters = {}, structure = [1,0,1,1], alpha = 0.4, beta = 1.35):#'structure' lists probabilty of occurence of [onset,medial,nucleus,coda]; 'parameters' lists constants for phomene distribution (either exponential or beta)
+
         self.structure = structure
 
         self.phonemes = {}
@@ -42,33 +39,15 @@ class Language:
         phonelist = self.phonemes[position]
         x = int(betavariate(self.alpha,self.beta)*len(phonelist))
         y = phonelist[x]
-        
-        if y in self.clusters.keys() and position != 'coda': #this can only do 2-clusters and can't handle coda clusters well
 
-            base = y
-            options = self.clusters[base]
+        if len(self.clusters) > 0:
+            if y in self.clusters.keys() and position != 'coda': #this can only do 2-clusters and can't handle coda clusters well
 
-            if random() < options[0]:
-                y = choice(options[1:])
-            
-##        if position = 'coda': ## More complex implementation (needed for non-Sark things)
-##            i = 1
-##        else:
-##            i = 0
-##        
-##        while y[i-1] in self.clusters.keys() and i >= 0:
-##            
-##            base = y[i-1]
-##            options = self.clusters[base]
-##
-##            if random() < options[0]:
-##                z = choice(options[1:])
-##
-##            if position == 'coda' and z[-i] == base:
-##                y = z
-##            elif z[0] == base:
-##                y = y[:-1] + z
-##                
+                base = y
+                options = self.clusters[base]
+
+                if random() < options[0]:
+                    y = choice(options[1:])             
         
         return(y)
 
@@ -133,10 +112,7 @@ class Language:
             for i in range(ceil(self.sylfreqs[item]**y)):
                 
                 syllables.append(item)
-        
-            
-    
-    ##Create function later objects can refer to in order to quickly determine which elements are being used?
+                
 
 class Syllable:#
     def __init__(self, language):
@@ -154,7 +130,6 @@ class Syllable:#
                 self.filled.append(item)
                 self.positions[item] = language.choose(item)
                 
-            #how to handle clusters?? especially orthographically???
 
         self.sounds = ''
         self.written = language.glyphify(self.positions)
@@ -162,8 +137,7 @@ class Syllable:#
         for item in self.filled: #creating syllable's string representation as both written and spoken
             s = self.positions[item]
             self.sounds += s
-##            self.written += language.glyphify(s)
-##### Need way to easily look up full Syllable object from sylfreqs list
+
         self.syl = self.sounds + '|' + self.written
         
         if self.syl in language.sylfreqs.keys(): #including syllable in language's syllable count
@@ -180,6 +154,7 @@ class Word:#chooses a number of syllables from the language's list and lists the
 
         output = []
         fullword = ''
+        written = ''
         l = lognormvariate(language.length[0],language.length[1])
 
         while len(fullword) <= l:
@@ -191,16 +166,11 @@ class Word:#chooses a number of syllables from the language's list and lists the
                 x = choice(language.allsyls)
             
             fullword += x.sounds + '.'
+            written += x.written
             output.append(x)
 
         self.word = output
 
         self.naive = fullword
+        self.written = written.capitalize()
 
-#####    def complete_word(word):#chooses appropriate orthographics for a word's phonemes and then turns them from a list of lists into a 2-tuple
-
-## Need way to handle orthographics
-    
-## How to shelf language?
-
-## Adjust Word class to make syllable modification based on position easier
